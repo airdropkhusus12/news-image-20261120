@@ -29,7 +29,10 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     target = out_dir / "entry.png"
     shutil.copyfile(SOURCE, target)
-    size = target.stat().st_size
+    data = target.read_bytes()
+    # PNG magic bytes: the file must be a whole PNG, not a truncated copy.
+    assert data[:8] == b"\x89PNG\r\n\x1a\n", "entry.png is not a PNG"
+    size = len(data)
     assert size <= 1_048_576, f"entry.png is {size} bytes, over the 1 MiB cap"
     print(f"wrote {target} ({size} bytes)")
 
